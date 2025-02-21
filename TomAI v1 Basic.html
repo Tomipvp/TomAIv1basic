@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TomAI v1 basic</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 20px;
+        }
+        #chat-container {
+            background-color: #fff;
+            width: 60%;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #chat-box {
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            text-align: left;
+        }
+        #input-area {
+            display: flex;
+            justify-content: center;
+        }
+        #user-input {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        #send-btn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #send-btn:hover {
+            background-color: #0056b3;
+        }
+        .message {
+            margin: 5px;
+            padding: 5px;
+        }
+        .user {
+            text-align: right;
+            background-color: #d1e7fd;
+            border-radius: 5px;
+            margin-left: 30%;
+        }
+        .bot {
+            text-align: left;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            margin-right: 30%;
+        }
+        .help {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>TomAI v1 basic</h1>
+    <div id="chat-container">
+        <div id="chat-box"></div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Írd be a kérdésed..." />
+            <button id="send-btn">Küldés</button>
+        </div>
+        <div class="help" id="help-box">
+            <h3>Súgó:</h3>
+            <ul>
+                <li><strong>Számológép:</strong> Írd be a műveletet, pl. 2+2, 5*5, stb.</li>
+                <li><strong>Mértékegység átváltás:</strong> Írd be pl. 100 km-mérföld vagy 62 mérföld-kilométer.</li>
+                <li><strong>Jó napom van:</strong> Ha mondod, hogy "jó napom van", akkor segítek jobban megérteni, hogy mi történt!</li>
+				<li><strong>Mennyi az idő:</strong> Elmondom az időt.</li>
+				<li><strong>Ki vagy te:</strong> Elmondom ki vagyok.</li>
+				<li><strong>Verzió:</strong> Elmondom az Ai verzióját.</li>
+				<li><strong>Mennyi egy pi:</strong> Elmondom, hogy mennyi egy pi.</li>
+				<li><strong>Mielőtt beírnál olyat, hogy 2+2, írd be mondjuk itt hogy számológép!</strong></li>
+			</ul>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-btn');
+        let currentFunction = null;
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                appendMessage("Te: " + message, 'user');
+                userInput.value = '';
+
+                let response = processInput(message.toLowerCase());
+                appendMessage("TomAI: " + response, 'bot');
+            }
+        }
+
+        function appendMessage(message, sender) {
+            const messageElement = document.createElement('p');
+            messageElement.textContent = message;
+            messageElement.classList.add('message', sender);
+            chatBox.appendChild(messageElement);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function processInput(input) {
+            if (input === 'jó napom van') {
+                currentFunction = 'jó napom';
+                return "Örülök, hogy jó napod van! Mesélj, mi történt veled?";
+            }
+
+            if (input === 'ki vagy te') {
+                return "Én a TomAI chatbot vagyok, egy szuper mesterséges intelligencia, aki segíthet neked! 😎";
+            } else if (input === 'számológép') {
+                currentFunction = 'számológép';
+                return "Írd be a műveletet (pl. 2+2, 3-3, 4*4, 5/5.).";
+			} else if (input === 'mennyi egy pi') {
+                return "3.14";
+			} else if (input === 'verzió') {
+                return "TomAI v1 basic edition v1.5.5";
+            } else if (input === 'mennyi az idő') {
+                const now = new Date();
+                return `Mai dátum és idő: ${now.toLocaleString()}`;
+            } else if (input === 'mértékegység átváltás') {
+                currentFunction = 'mértékegység';
+                return "Írd be az átváltást (pl. 100 km-mérföld, 5 kmph-mps, 10 inch-cm vagy 9.97 gpercm3-kgperm3.).";
+            } else {
+                return handleFunction(input);
+            }
+        }
+
+        function handleFunction(input) {
+            switch (currentFunction) {
+                case 'számológép':
+                    return calculate(input);
+                case 'mértékegység':
+                    return convertUnits(input);
+                case 'jó napom':
+                    return "Örülök, hogy jó napod van! Mesélj, mi történt veled?";
+                default:
+                    return "Bocsánat, nem értem a kérdést. Kérlek próbáld újra!";
+            }
+        }
+
+        function calculate(input) {
+    // Frissített regex, hogy kezelje a ** operátort is
+    const regex = /(\d+)\s*([\+\-\*\/\**\*])\s*(\d+)/;
+    const match = input.match(regex);
+
+    if (match) {
+        const num1 = parseFloat(match[1]);
+        const operator = match[2];
+        const num2 = parseFloat(match[3]);
+
+        let result;
+
+        if (operator === '+') {
+            result = num1 + num2;
+        } else if (operator === '-') {
+            result = num1 - num2;
+        } else if (operator === '*') {
+            result = num1 * num2;
+        } else if (operator === '/') {
+            result = num2 !== 0 ? num1 / num2 : "Nullával nem osztunk!";
+        } else {
+            result = "Hibás operátor!";
+        }
+
+        return result;
+    }
+
+    return "Hibás művelet. Kérlek add meg két számot!";
+}
+
+        function convertUnits(input) {
+            const kmToMile = 0.621371;
+            const mileToKm = 1.60934;
+
+            if (input.match(/(\d+)\s*km\s*-\s*mérföld/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} km = ${(number * kmToMile).toFixed(2)} mérföld`;
+            } else if (input.match(/(\d+)\s*mérföld\s*-\s*km/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} mérföld = ${(number * mileToKm).toFixed(2)} kilométer`;
+			} else if (input.match(/(\d+)\s*kmph\s*-\s*mps/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} mps = ${(number * 3.6).toFixed(2)} kmph`;
+			} else if (input.match(/(\d+)\s*mps\s*-\s*kmph/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} kmph = ${(number / 3.6).toFixed(2)} mps`;
+			} else if (input.match(/(\d+)\s*inch\s*-\s*cm/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} inch = ${(number * 2.54).toFixed(2)} cm`;
+			} else if (input.match(/(\d+)\s*cm\s*-\s*inch/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} cm = ${(number / 2.54).toFixed(2)} inch`;
+			} else if (input.match(/(\d+)\s*gpercm3\s*-\s*kgperm3/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} g/cm3 = ${(number * 1000).toFixed(2)} kg/m3`;
+			} else if (input.match(/(\d+)\s*kgperm3\s*-\s*gpercm3/)) {
+                const number = parseFloat(input.split(' ')[0]);
+                return `${number} kg/m3 = ${(number / 1000).toFixed(2)} g/cm3`;
+            } else {
+                return "Nem értem az átváltást. Kérlek próbáld újra!";
+            }
+        }
+    </script>
+</body>
+</html>
